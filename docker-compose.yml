@@ -1,0 +1,29 @@
+# Docker Compose for A-B
+version: '3.8'
+services:
+  db:
+    image: postgres:16
+    restart: always
+    environment:
+      POSTGRES_USER: ab_user
+      POSTGRES_PASSWORD: ab_pass
+      POSTGRES_DB: ab_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+  backend:
+    build: ./backend
+    command: npm run dev
+    volumes:
+      - ./backend:/app
+    ports:
+      - "4000:4000"
+    environment:
+      DATABASE_URL: postgres://ab_user:ab_pass@db:5432/ab_db
+      PORT: 4000
+      NODE_ENV: development
+    depends_on:
+      - db
+volumes:
+  db_data:
